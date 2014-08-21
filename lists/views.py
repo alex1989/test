@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.shortcuts import redirect, render
 from lists.models import Item, List
 
@@ -18,5 +19,11 @@ def add_item(request, list_id):
 
 def new_list(request):
     lst = List.objects.create()
-    Item.objects.create(text=request.POST['item_text'], list=lst)
+    item = Item.objects.create(text=request.POST['item_text'], list=lst)
+    try:
+        item.full_clean()
+    except ValidationError:
+        lst.delete()
+        error = "You can't have an empty list item"
+        return render(request, 'home.html', {"error": error})
     return redirect('/lists/%d/' % (lst.id,))
