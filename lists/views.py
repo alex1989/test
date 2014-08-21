@@ -10,12 +10,10 @@ def home_page(request):
 
 def view_list(request, list_id):
     lst = List.objects.get(id=list_id)
+    if request.method == 'POST':
+        Item.objects.create(text=request.POST['item_text'], list=lst)
+        return redirect('/lists/%d/' % (lst.id,))
     return render(request, 'list.html', {'list': lst})
-
-def add_item(request, list_id):
-    lst = List.objects.get(id=list_id)
-    Item.objects.create(text=request.POST['item_text'], list=lst)
-    return redirect('/lists/%d/' % (lst.id,))
 
 def new_list(request):
     lst = List.objects.create()
